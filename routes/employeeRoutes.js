@@ -454,4 +454,69 @@ router.post('/upload-profile-image', upload.single('profileImage'), async (req, 
   }
 });
 
+// POST /api/employees/login - Employee login
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and password are required'
+      });
+    }
+
+    // Find employee by email
+    const employee = await Employee.findOne({ email: email.toLowerCase() });
+    if (!employee) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Check if employee is active
+    if (!employee.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Account is deactivated. Please contact administrator.'
+      });
+    }
+
+    // Verify password
+    const isPasswordValid = await employee.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Update last login
+    employee.lastLogin = new Date();
+    await employee.save();
+
+    // Return success response (excluding password)
+    const employeeData = employee.toJSON();
+    delete employeeData.password;
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        employee: employeeData
+      }
+    });
+
+  } catch (error) {
+    console.error('Employee login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
