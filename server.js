@@ -12,6 +12,7 @@ require('./config/database');
 const userRoutes = require('./routes/userRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const departmentRoutes = require('./routes/departmentRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -48,10 +49,11 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes
+// Routes
 app.use('/api/users', userRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/departments', departmentRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
