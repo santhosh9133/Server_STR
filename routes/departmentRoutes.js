@@ -152,7 +152,7 @@ router.post('/', async (req, res) => {
 // PUT /api/departments/:id - Update department
 router.put('/:id', async (req, res) => {
   try {
-    const { name, description, isActive } = req.body;
+  const { name, description, isActive, departmentId } = req.body;
     
     const department = await Department.findById(req.params.id);
     
@@ -169,7 +169,6 @@ router.put('/:id', async (req, res) => {
         name: { $regex: new RegExp(`^${name}$`, 'i') },
         _id: { $ne: req.params.id }
       });
-      
       if (existingDepartment) {
         return res.status(400).json({
           success: false,
@@ -177,7 +176,20 @@ router.put('/:id', async (req, res) => {
         });
       }
     }
-    
+    // Check if new departmentId conflicts with existing department (excluding current)
+    if (departmentId && departmentId !== department.departmentId) {
+      const existingDeptId = await Department.findOne({
+        departmentId: departmentId,
+        _id: { $ne: req.params.id }
+      });
+      if (existingDeptId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Department with this ID already exists'
+        });
+      }
+      department.departmentId = departmentId;
+    }
     // Update fields
     if (name) department.name = name.trim();
     if (description !== undefined) department.description = description?.trim();

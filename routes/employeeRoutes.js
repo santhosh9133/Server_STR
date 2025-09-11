@@ -158,8 +158,8 @@ router.post('/', async (req, res) => {
     });
     
     if (existingEmployee) {
-      return res.status(400).json({
-        success: false,
+      return res.status(400).send({
+        // success: false,
         message: 'Employee with this email or employee code already exists'
       });
     }
