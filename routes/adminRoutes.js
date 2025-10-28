@@ -5,24 +5,36 @@ const router = express.Router();
 // POST /api/admin/register - Register new admin
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password, role, permissions, createdBy } = req.body;
+    const { firstName, lastName, username, email, mobile, profilePic, password, role, permissions, createdBy } = req.body;
+    
+    // Validate required fields
+    if (!firstName || !lastName || !email || !mobile || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'First name, last name, email, mobile, and password are required'
+      });
+    }
     
     // Check if admin already exists
     const existingAdmin = await Admin.findOne({
-      $or: [{ email }, { username }]
+      $or: [{ email }, { username }, { mobile }]
     });
     
     if (existingAdmin) {
       return res.status(400).json({
         success: false,
-        message: 'Admin with this email or username already exists'
+        message: 'Admin with this email, username, or mobile number already exists'
       });
     }
     
     // Create new admin
     const adminData = {
+      firstName,
+      lastName,
       username,
       email,
+      mobile,
+      profilePic,
       password,
       role: role || 'admin',
       permissions: permissions || ['read', 'write', 'delete']
@@ -100,8 +112,11 @@ router.post('/login', async (req, res) => {
       data: {
         admin: {
           id: admin._id,
+          firstName: admin.firstName,
+          lastName: admin.lastName,
           username: admin.username,
           email: admin.email,
+          mobile: admin.mobile,
           role: admin.role,
           permissions: admin.permissions,
           lastLogin: admin.lastLogin
@@ -128,8 +143,11 @@ router.get('/', async (req, res) => {
     
     if (search) {
       query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
         { username: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
+        { email: { $regex: search, $options: 'i' } },
+        { mobile: { $regex: search, $options: 'i' } }
       ];
     }
     
@@ -144,7 +162,7 @@ router.get('/', async (req, res) => {
     // Execute query with pagination
     const admins = await Admin.find(query)
       .select('-password')
-      .populate('createdBy', 'username email')
+      .populate('createdBy', 'firstName lastName username email')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
@@ -177,7 +195,7 @@ router.get('/:id', async (req, res) => {
   try {
     const admin = await Admin.findById(req.params.id)
       .select('-password')
-      .populate('createdBy', 'username email');
+      .populate('createdBy', 'firstName lastName username email');
     
     if (!admin) {
       return res.status(404).json({
@@ -200,14 +218,18 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// PUT /api/admin/:id - Update admin
+// PUT /api/admin/:id - Update admin profile
 router.put('/:id', async (req, res) => {
   try {
-    const { username, email, role, permissions, isActive } = req.body;
+    const { firstName, lastName, username, email, mobile, profilePic, role, permissions, isActive } = req.body;
     
     const updateData = {};
+    if (firstName) updateData.firstName = firstName;
+    if (lastName) updateData.lastName = lastName;
     if (username) updateData.username = username;
     if (email) updateData.email = email;
+    if (mobile) updateData.mobile = mobile;
+    if (profilePic !== undefined) updateData.profilePic = profilePic;
     if (role) updateData.role = role;
     if (permissions) updateData.permissions = permissions;
     if (isActive !== undefined) updateData.isActive = isActive;
@@ -366,9 +388,12 @@ router.put('/:id/activate', async (req, res) => {
 // POST /api/admin/setup-super-admin - Create initial super admin
 router.post('/setup-super-admin', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { firstName, lastName, mobile, username, email, password } = req.body;
     
     const superAdmin = await Admin.createSuperAdmin({
+      firstName,
+      lastName,
+      mobile,
       username,
       email,
       password

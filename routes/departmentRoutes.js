@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
         { departmentId: { $regex: search, $options: 'i' } }
       ];
     }
-    
+    samskruthi
     if (isActive !== undefined) {
       query.isActive = isActive === 'true';
     }
