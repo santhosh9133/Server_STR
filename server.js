@@ -50,7 +50,7 @@ app.use((req, res, next) => {
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
-    message: 'Server is running',
+    message: "Backend connected!",
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
@@ -61,7 +61,6 @@ app.use('/api/users', userRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/departments', departmentRoutes);
-app.get('/api/departments', departmentRoutes);
 app.use('/api/designations', designationRoutes);
 app.use('/api/companies', companyRoutes);
 
