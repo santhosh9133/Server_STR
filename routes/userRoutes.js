@@ -185,7 +185,7 @@ router.put('/:id', async (req, res) => {
       message: 'Error updating user',
       error: error.message
     });
-  }
+  } 
 });
 
 // DELETE /api/users/:id - Delete user
