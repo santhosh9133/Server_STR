@@ -5,7 +5,7 @@ const router = express.Router();
 // POST /api/admin/register - Register new admin
 router.post('/register', async (req, res) => {
   try {
-    const { firstName, lastName, username, email, mobile, profilePic, password, role, permissions, createdBy } = req.body;
+    const { firstName, lastName, userName, email, mobile, profilePic, password, role, permissions, createdBy } = req.body;
     
     // Validate required fields
     if (!firstName || !lastName || !email || !mobile || !password) {
@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
     
     // Check if admin already exists
     const existingAdmin = await Admin.findOne({
-      $or: [{ email }, { username }, { mobile }]
+      $or: [{ email }, { userName }, { mobile }]
     });
     
     if (existingAdmin) {
@@ -31,7 +31,7 @@ router.post('/register', async (req, res) => {
     const adminData = {
       firstName,
       lastName,
-      username,
+      userName,
       email,
       mobile,
       profilePic,
@@ -114,7 +114,7 @@ router.post('/login', async (req, res) => {
           id: admin._id,
           firstName: admin.firstName,
           lastName: admin.lastName,
-          username: admin.username,
+          userName: admin.userName,
           email: admin.email,
           mobile: admin.mobile,
           role: admin.role,
@@ -145,7 +145,7 @@ router.get('/', async (req, res) => {
       query.$or = [
         { firstName: { $regex: search, $options: 'i' } },
         { lastName: { $regex: search, $options: 'i' } },
-        { username: { $regex: search, $options: 'i' } },
+        { userName: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
         { mobile: { $regex: search, $options: 'i' } }
       ];
@@ -221,12 +221,12 @@ router.get('/:id', async (req, res) => {
 // PUT /api/admin/:id - Update admin profile
 router.put('/:id', async (req, res) => {
   try {
-    const { firstName, lastName, username, email, mobile, profilePic, role, permissions, isActive } = req.body;
+    const { firstName, lastName, userName, email, mobile, profilePic, role, permissions, isActive } = req.body;
     
     const updateData = {};
     if (firstName) updateData.firstName = firstName;
     if (lastName) updateData.lastName = lastName;
-    if (username) updateData.username = username;
+    if (userName) updateData.userName = userName;
     if (email) updateData.email = email;
     if (mobile) updateData.mobile = mobile;
     if (profilePic !== undefined) updateData.profilePic = profilePic;
@@ -388,13 +388,13 @@ router.put('/:id/activate', async (req, res) => {
 // POST /api/admin/setup-super-admin - Create initial super admin
 router.post('/setup-super-admin', async (req, res) => {
   try {
-    const { firstName, lastName, mobile, username, email, password } = req.body;
+    const { firstName, lastName, mobile, userName, email, password } = req.body;
     
     const superAdmin = await Admin.createSuperAdmin({
       firstName,
       lastName,
       mobile,
-      username,
+      userName,
       email,
       password
     });

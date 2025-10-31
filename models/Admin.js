@@ -16,12 +16,12 @@ const adminSchema = new mongoose.Schema({
     minlength: [2, 'Last name must be at least 2 characters long'],
     maxlength: [50, 'Last name cannot exceed 50 characters']
   },
-  username: {
+  userName: {
     type: String,
-    required: [true, 'Username is required'],
+    required: [true, 'UserName is required'],
     unique: true,
     trim: true,
-    minlength: [3, 'Username must be at least 3 characters long'],
+    minlength: [3, 'UserName must be at least 3 characters long'],
     maxlength: [30, 'Username cannot exceed 30 characters']
   },
   email: {
@@ -93,7 +93,7 @@ const adminSchema = new mongoose.Schema({
 
 // Index for better query performance
 adminSchema.index({ email: 1 });
-adminSchema.index({ username: 1 });
+adminSchema.index({ userName: 1 });
 adminSchema.index({ role: 1 });
 adminSchema.index({ createdAt: -1 });
 

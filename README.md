@@ -82,7 +82,7 @@ The server will start on `http://localhost:5000` (or the port specified in `.env
 curl -X POST http://localhost:5000/api/users \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "johndoe",
+    "userName": "johndoe",
     "email": "john@example.com",
     "password": "password123",
     "firstName": "John",

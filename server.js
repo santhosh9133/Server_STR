@@ -14,9 +14,10 @@ connectDB();
 const userRoutes = require('./routes/userRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const departmentRoutes = require('./routes/departmentRoutes');
-const designationRoutes = require('./routes/designationRoutes');
 const companyRoutes = require('./routes/companyRoute');
+const departmentRoutes = require('./routes/dropdownRoutes/departmentRoute');
+const designationRoutes = require('./routes/dropdownRoutes/designationRoute');
+const shiftRoutes = require('./routes/dropdownRoutes/shiftRoute');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -56,6 +57,14 @@ app.get('/health', (req, res) => {
   });
 });
 
+// 404 handler
+// app.use('*', (req, res) => {
+//   res.status(404).json({
+//     error: 'Route not found',
+//     message: `Cannot ${req.method} ${req.originalUrl}`
+//   });
+// });
+
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/employees', employeeRoutes);
@@ -63,13 +72,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/designations', designationRoutes);
 app.use('/api/companies', companyRoutes);
-
-// catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//     const error = new Error('Not Found');
-//     error.status = 404;
-//     next(error);
-// });
+app.use('/api/shifts', shiftRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -85,12 +88,12 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    error: 'Route not found',
-    message: `Cannot ${req.method} ${req.originalUrl}`
-  });
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+    const error = new Error('Not Found');
+    error.status = 404;
+    next(error);
 });
 
 // Global error handler

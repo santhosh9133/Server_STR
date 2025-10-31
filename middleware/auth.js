@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
-const Admin = require('../models/adminModel');
-const SuperAdmin = require('../models/superAdminModel');
+// const Admin = require('../models/adminModel');
+// const SuperAdmin = require('../models/superAdminModel');
 
 // Middleware to verify JWT token
 const auth = async (req, res, next) => {
@@ -21,7 +21,7 @@ const auth = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
         // Find user by id
-        const user = await User.findById(decoded.id);
+        const user = await User.findById(decoded._id);
         
         if (!user || !user.isActive) {
             return res.status(401).json({
