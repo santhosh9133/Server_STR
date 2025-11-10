@@ -96,7 +96,7 @@ const userSchema = new mongoose.Schema(
     permissions: [ ],
 
     // Account Management
-    userName: { type: String, required: true, unique: true, trim: true, minlength: 3, maxlength: 30 },
+    userName: { type: String, unique: false, sparse: true, trim: true, minlength: 3, maxlength: 30 },
     isActive: { type: Boolean, default: true },
     lastLogin: { type: Date, default: null },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', default: null },
