@@ -5,6 +5,7 @@ const { auth } = require("../middleware/auth");
 const {
   register,
   login,
+  getAllUsers,
   getProfile,
   updateProfile,
   changePassword,
@@ -30,6 +31,8 @@ router.post("/login", login);
  * @desc    Get current user profile
  * @access  Private
  */
+router.get("/", getAllUsers);
+
 router.get("/profile", auth, getProfile);
 
 /**

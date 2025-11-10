@@ -40,87 +40,97 @@ const generateTokenResponse = (user, userEntity = null) => {
 // ======================== REGISTER ==========================
 exports.register = async (req, res) => {
   try {
-    const {
-      userName,
-      email,
-      password,
-      confirmPassword,
-      userType = 'employee',
-      firstName,
-      lastName,
-      mobile,
-      CompanyId,
-    } = req.body;
+    const userData = req.body;
 
-    // Handle profilePic from form-data (if uploaded)
-    const profilePic = req.file ? `/uploads/profilePics/${req.file.filename}` : null;
-
-    // Validation
-    if (!userName || !email || !password || !firstName || !lastName || !mobile) {
-      return res.status(400).json({
-        success: false,
-        message: 'Username, email, password, first name, last name, and mobile are required',
-      });
+    // ✅ Parse nested JSON if sent as strings
+    if (userData.emergencyContacts && typeof userData.emergencyContacts === 'string') {
+      try {
+        userData.emergencyContacts = JSON.parse(userData.emergencyContacts);
+      } catch {
+        userData.emergencyContacts = [];
+      }
     }
 
-    if (password !== confirmPassword) {
-      return res.status(400).json({ success: false, message: 'Passwords do not match' });
+    if (userData.bank && typeof userData.bank === 'string') {
+      try {
+        userData.bank = JSON.parse(userData.bank);
+      } catch {
+        userData.bank = {};
+      }
     }
 
-    if (!validator.isEmail(email)) {
-      return res.status(400).json({ success: false, message: 'Please provide a valid email address' });
+    // ✅ Handle uploaded file (if any)
+    userData.profilePic = req.file ? `/uploads/profilePics/${req.file.filename}` : null;
+
+    // ✅ Validation checks...
+    if (!userData.email || !userData.password) {
+      return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
-    if (password.length < 8) {
-      return res.status(400).json({
-        success: false,
-        message: 'Password must be at least 8 characters long',
-      });
-    }
-
-    // Check existing user
-    const existingUser = await User.findOne({
-      $or: [{ email: email.toLowerCase() }, { userName }, { mobile }],
-    });
-
+    const existingUser = await User.findOne({ email: userData.email.toLowerCase() });
     if (existingUser) {
-      const message =
-        existingUser.email === email.toLowerCase()
-          ? 'User with this email already exists'
-          : existingUser.userName === userName
-          ? 'Username already taken'
-          : 'Mobile number already registered';
-      return res.status(400).json({ success: false, message });
+      return res.status(400).json({ success: false, message: 'Email already exists' });
     }
 
-    // Create placeholder userTypeId for now
-    const userTypeId = new mongoose.Types.ObjectId();
+    // ✅ Create user
+    const user = new User(userData);
+    await user.save();
 
-    // Create user
-    const user = await User.createUser({
-      userType,
-      userTypeId,
-      email: email.toLowerCase().trim(),
-      userName: userName.trim(),
-      password,
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      mobile: mobile.trim(),
-      profilePic,
-      CompanyId,
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully',
+      data: user,
     });
-
-    const response = generateTokenResponse(user);
-    return res.status(201).json(response);
   } catch (error) {
     console.error('Registration error:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+};
 
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map((err) => err.message);
-      return res.status(400).json({ success: false, message: 'Validation failed', errors });
+// get all users
+// ======================== GET ALL USERS ==========================
+exports.getAllUsers = async (req, res) => {
+  try {
+    // Optional: filter, search, pagination
+    const { search, role, isActive } = req.query;
+
+    // Build query dynamically
+    const query = {};
+
+    if (search) {
+      query.$or = [
+        { userName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { mobile: { $regex: search, $options: 'i' } },
+      ];
     }
 
-    res.status(500).json({ success: false, message: 'Server error during registration' });
+    if (role) {
+      query.userType = role;
+    }
+
+    if (isActive !== undefined) {
+      query.isActive = isActive === 'true';
+    }
+
+    // Fetch all users except passwords
+    const users = await User.find(query).select('-password').sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: 'Users fetched successfully',
+      count: users.length,
+      data: users,
+    });
+  } catch (error) {
+    console.error('Get all users error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching users',
+      error: error.message,
+    });
   }
 };
 
