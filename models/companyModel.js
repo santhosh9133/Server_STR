@@ -73,6 +73,10 @@ const companySchema = new mongoose.Schema(
         message: "Passwords do not match",
       },
     },
+     isActive: {
+    type: Boolean,
+    default: true
+   }
   },
   { timestamps: true }
 );

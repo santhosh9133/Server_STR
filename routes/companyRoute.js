@@ -14,7 +14,7 @@ const {
 // const { verifyAdminToken } = require("../middleware/verifyToken");
 
 // CREATE (Register Company) - form-data
-router.post("/register", upload.single("companyImg"), registerCompany);
+router.post("/", upload.single("companyImg"), registerCompany);
 
 // LOGIN Company - JSON body
 router.post("/login", loginCompany);
