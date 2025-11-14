@@ -55,8 +55,7 @@ exports.loginCompany = async (req, res) => {
     const { email, password } = req.body;
     const company = await Company.findOne({ email }).select("+password");
 
-    if (!company)
-      return res.status(404).json({ message: "Company not found" });
+    if (!company) return res.status(404).json({ message: "Company not found" });
 
     const isMatch = await bcrypt.compare(password, company.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid password" });
@@ -128,6 +127,22 @@ exports.deleteCompany = async (req, res) => {
     const company = await Company.findByIdAndDelete(req.params.id);
     if (!company) return res.status(404).json({ message: "Company not found" });
     res.status(200).json({ message: "Company deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getCompanyStats = async (req, res) => {
+  try {
+    const total = await Company.countDocuments();
+    const active = await Company.countDocuments({ status: "active" });
+    const inactive = await Company.countDocuments({ status: "inactive" });
+
+    return res.json({
+      total,
+      active,
+      inactive,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

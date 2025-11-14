@@ -10,6 +10,7 @@ const {
   getCompanyById,
   updateCompany,
   deleteCompany,
+  getCompanyStats,
 } = require("../controllers/companyController");
 // const { verifyAdminToken } = require("../middleware/verifyToken");
 
@@ -20,10 +21,13 @@ router.post("/", upload.single("companyImg"), registerCompany);
 router.post("/login", loginCompany);
 
 // GET All Companies
-router.get("/",  getAllCompanies);
+router.get("/", getAllCompanies);
 
 // GET Company by ID
 router.get("/:id", getCompanyById);
+
+// Get Stats
+router.get("/stats", getCompanyStats);
 
 // UPDATE Company (form-data)
 router.put("/:id", upload.single("companyImg"), updateCompany);
