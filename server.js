@@ -1,23 +1,25 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const multer = require('multer');
-const path = require('path');
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const multer = require("multer");
+const path = require("path");
 const connectDB = require("./config/database");
 
-require('dotenv').config();
+require("dotenv").config();
 
 // Import database connection
 connectDB();
 
 // Import routes
-const userRoutes = require('./routes/userRoutes');
-const employeeRoutes = require('./routes/employeeRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const companyRoutes = require('./routes/companyRoute');
-const departmentRoutes = require('./routes/dropdownRoutes/departmentRoute');
-const designationRoutes = require('./routes/dropdownRoutes/designationRoute');
-const shiftRoutes = require('./routes/dropdownRoutes/shiftRoute');
+const userRoutes = require("./routes/userRoutes");
+const employeeRoutes = require("./routes/employeeRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const companyRoutes = require("./routes/companyRoute");
+const departmentRoutes = require("./routes/dropdownRoutes/departmentRoute");
+const designationRoutes = require("./routes/dropdownRoutes/designationRoute");
+const shiftRoutes = require("./routes/dropdownRoutes/shiftRoute");
+const ticketRoutes = require("./routes/ticketRoute");
+const holidayRoutes = require("./routes/holidayRoute");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -34,7 +36,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors()); // Enable CORS
 
-app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
+app.use(express.json({ limit: "10mb" })); // Parse JSON bodies
 
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
@@ -48,12 +50,12 @@ app.use((req, res, next) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get("/health", (req, res) => {
   res.status(200).json({
-    status: 'OK',
+    status: "OK",
     message: "Backend connected!",
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
@@ -66,42 +68,46 @@ app.get('/health', (req, res) => {
 // });
 
 // Routes
-app.use('/api/users', userRoutes);
-app.use('/api/employees', employeeRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/departments', departmentRoutes);
-app.use('/api/designations', designationRoutes);
-app.use('/api/companies', companyRoutes);
-app.use('/api/shifts', shiftRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/employees", employeeRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/departments", departmentRoutes);
+app.use("/api/designations", designationRoutes);
+app.use("/api/companies", companyRoutes);
+app.use("/api/shifts", shiftRoutes);
+app.use("/api/tickets", ticketRoutes);
+app.use("/api/holidays", holidayRoutes);
 
 // Root endpoint
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.json({
-    message: 'Welcome to MongoDB Backend API',
-    version: '1.0.0',
+    message: "Welcome to MongoDB Backend API",
+    version: "1.0.0",
     endpoints: {
-      health: '/health',
-      users: '/api/users',
-      employees: '/api/employees',
-      admin: '/api/admin'
-    }
+      health: "/health",
+      users: "/api/users",
+      employees: "/api/employees",
+      admin: "/api/admin",
+    },
   });
 });
 
-
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-    const error = new Error('Not Found');
-    error.status = 404;
-    next(error);
+app.use(function (req, res, next) {
+  const error = new Error("Not Found");
+  error.status = 404;
+  next(error);
 });
 
 // Global error handler
 app.use((error, req, res, next) => {
-  console.error('Global error handler:', error);
+  console.error("Global error handler:", error);
   res.status(error.status || 500).json({
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+    error: "Internal Server Error",
+    message:
+      process.env.NODE_ENV === "development"
+        ? error.message
+        : "Something went wrong",
   });
 });
 
