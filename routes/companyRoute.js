@@ -23,11 +23,11 @@ router.post("/login", loginCompany);
 // GET All Companies
 router.get("/", getAllCompanies);
 
-// GET Company by ID
-router.get("/:id", getCompanyById);
-
 // Get Stats
 router.get("/stats", getCompanyStats);
+
+// GET Company by ID
+router.get("/:id", getCompanyById);
 
 // UPDATE Company (form-data)
 router.put("/:id", upload.single("companyImg"), updateCompany);

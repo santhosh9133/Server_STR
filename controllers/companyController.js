@@ -135,8 +135,8 @@ exports.deleteCompany = async (req, res) => {
 exports.getCompanyStats = async (req, res) => {
   try {
     const total = await Company.countDocuments();
-    const active = await Company.countDocuments({ status: "active" });
-    const inactive = await Company.countDocuments({ status: "inactive" });
+    const active = await Company.countDocuments({ isActive: "true" });
+    const inactive = await Company.countDocuments({ isActive: "false" });
 
     return res.json({
       total,
