@@ -1,0 +1,38 @@
+const mongoose = require("mongoose");
+
+// const permissionSchema = new mongoose.Schema(
+//   {
+//     module: {
+//       type: String,
+//       required: true,
+//       trim: true,
+//     },
+//     actions: {
+//       view: { type: Boolean, default: false },
+//       add: { type: Boolean, default: false },
+//       update: { type: Boolean, default: false },
+//       delete: { type: Boolean, default: false },
+//       export: { type: Boolean, default: false },
+//     },
+//   },
+//   { _id: false }
+// );
+
+const roleSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    status: {
+      type: String,
+      default: "active",
+    },
+    permissions: [],
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model("Role", roleSchema);

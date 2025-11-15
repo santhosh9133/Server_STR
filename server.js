@@ -20,6 +20,8 @@ const designationRoutes = require("./routes/dropdownRoutes/designationRoute");
 const shiftRoutes = require("./routes/dropdownRoutes/shiftRoute");
 const ticketRoutes = require("./routes/ticketRoute");
 const holidayRoutes = require("./routes/holidayRoute");
+const leaveRoutes = require("./routes/leaveRoutes/leaveRoute");
+const roleRoutes = require("./routes/roleRoute");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -77,6 +79,8 @@ app.use("/api/companies", companyRoutes);
 app.use("/api/shifts", shiftRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/holidays", holidayRoutes);
+app.use("/api/leaves", leaveRoutes);
+app.use("/api/roles", roleRoutes);
 
 // Root endpoint
 app.get("/", (req, res) => {
