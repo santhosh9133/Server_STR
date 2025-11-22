@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const validator = require('validator');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const validator = require("validator");
 
 //
 // Permission Schema
@@ -22,16 +22,36 @@ const validator = require('validator');
 const userSchema = new mongoose.Schema(
   {
     // Basic Details
-    firstName: { type: String, required: true, trim: true, minlength: 2, maxlength: 50 },
-    lastName: { type: String, required: true, trim: true, minlength: 2, maxlength: 50 },
-    mobile: { type: String, required: true, trim: true, match: [/^[0-9]{10}$/, 'Enter valid 10-digit mobile number'] },
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 2,
+      maxlength: 50,
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 2,
+      maxlength: 50,
+    },
+    mobile: {
+      type: String,
+      required: true,
+      trim: true,
+      match: [/^[0-9]{10}$/, "Enter valid 10-digit mobile number"],
+    },
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Enter a valid email'],
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        "Enter a valid email",
+      ],
     },
     password: {
       type: String,
@@ -41,28 +61,42 @@ const userSchema = new mongoose.Schema(
         validator: function (password) {
           const hasUpperCase = /[A-Z]/.test(password);
           const hasNumber = /\d/.test(password);
-          const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+          const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+            password
+          );
           return hasUpperCase && hasNumber && hasSymbol;
         },
-        message: 'Password must contain at least one uppercase letter, one number, and one symbol',
+        message:
+          "Password must contain at least one uppercase letter, one number, and one symbol",
       },
     },
 
     // Company and Role
-    CompanyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
-    roleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Role', default: null }, 
+    CompanyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
+    roleId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Role",
+      default: null,
+    },
 
     // Profile & Employment Info
     profilePic: { type: String, default: null, trim: true },
     empCode: { type: String, unique: true, sparse: true, trim: true },
     dateOfBirth: { type: Date },
     joiningDate: { type: Date },
-    gender: { type: String, enum: ['Male', 'Female', 'Other'] },
+    gender: { type: String, enum: ["Male", "Female", "Other"] },
     nationality: { type: String, trim: true },
     shift: { type: String, trim: true },
     department: { type: String, trim: true },
     designation: { type: String, trim: true },
-    bloodGroup: { type: String, enum: ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] },
+    bloodGroup: {
+      type: String,
+      enum: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
+    },
     about: { type: String, maxlength: 60 },
 
     // Address
@@ -90,16 +124,39 @@ const userSchema = new mongoose.Schema(
     },
 
     // Role & Permissions
-    userType: { type: String, enum: ['employee', 'admin', 'super_admin'], required: true },
-    role: { type: String, enum: ['super_admin', 'admin', 'hr_admin', 'employee'], default: 'admin' },
-    userTypeId: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'userType' },
-    permissions: [ ],
+    userType: {
+      type: String,
+      enum: ["employee", "admin", "super_admin"],
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: ["super_admin", "admin", "hr_admin", "employee"],
+      default: "admin",
+    },
+    userTypeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      refPath: "userType",
+    },
+    permissions: [],
 
     // Account Management
-    userName: { type: String, unique: false, sparse: true, trim: true, minlength: 3, maxlength: 30 },
+    userName: {
+      type: String,
+      unique: false,
+      sparse: true,
+      trim: true,
+      minlength: 3,
+      maxlength: 30,
+    },
     isActive: { type: Boolean, default: true },
     lastLogin: { type: Date, default: null },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', default: null },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -115,8 +172,8 @@ const userSchema = new mongoose.Schema(
 //
 // Password Hash Middleware
 //
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
@@ -138,23 +195,27 @@ userSchema.methods.generateAuthToken = function () {
     role: this.role,
     userType: this.userType,
   };
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
 //
 // Virtuals
 //
-userSchema.virtual('fullName').get(function () {
+userSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
-userSchema.virtual('age').get(function () {
+userSchema.virtual("age").get(function () {
   if (!this.dateOfBirth) return null;
   const today = new Date();
   const birthDate = new Date(this.dateOfBirth);
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  )
+    age--;
   return age;
 });
 
@@ -170,6 +231,19 @@ userSchema.statics.findByDepartment = function (department) {
 };
 
 //
+// Static Method – Find By Credentials
+//
+userSchema.statics.findByCredentials = async function (email, password) {
+  const user = await this.findOne({ email });
+  if (!user) throw new Error("Invalid login credentials");
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) throw new Error("Invalid login credentials");
+
+  return user;
+};
+
+//
 // 🧰 STATIC METHOD – Create new user
 //
 userSchema.statics.createUser = async function (userData) {
@@ -181,5 +255,5 @@ userSchema.statics.createUser = async function (userData) {
 //
 // Model Export
 //
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 module.exports = User;
