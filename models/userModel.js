@@ -134,11 +134,11 @@ const userSchema = new mongoose.Schema(
       enum: ["super_admin", "admin", "hr_admin", "employee"],
       default: "admin",
     },
-    // userTypeId: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   required: true,
-    //   refPath: "userType",
-    // },
+    userTypeId: {
+      type: String,
+      required: false,
+      default: "USER",
+    },
     permissions: [],
 
     // Account Management
