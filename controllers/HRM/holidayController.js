@@ -1,4 +1,4 @@
-const Holiday = require("../models/holidayModel");
+const Holiday = require("../../models/HRMmodels/holidayModel");
 
 // ✅ Create a new holiday
 exports.createHoliday = async (req, res) => {

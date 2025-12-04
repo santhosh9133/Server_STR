@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const departmentController = require('../../controllers/dropdownControllers/departmentController');
-const { verifyAdminToken } = require('../../middleware/verifyToken');
+const departmentController = require('../../../controllers/HRM/dropdownControllers/departmentController');
+const { verifyAdminToken } = require('../../../middleware/verifyToken');
 // const { adminTokenAuth} = require('../../middleware/');
 
 // Route Definitions

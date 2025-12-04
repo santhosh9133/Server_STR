@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const leaveController = require("../../controllers/leaveControllers/leaveController");
+const leaveController = require("../../../controllers/HRM/leaveControllers/leaveController");
 
 // Create leave
 router.post("/", leaveController.createLeave);

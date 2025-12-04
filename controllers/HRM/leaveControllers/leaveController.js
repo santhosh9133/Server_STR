@@ -1,5 +1,5 @@
-const Leave = require("../../models/leaveModels/leaveModel");
-const User = require("../../models/userModel");
+const Leave = require("../../../models/leaveModels/leaveModel");
+const User = require("../../../models/userModel");
 
 // CREATE Leave
 exports.createLeave = async (req, res) => {
