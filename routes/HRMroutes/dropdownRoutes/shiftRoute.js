@@ -1,6 +1,6 @@
 const express = require('express');
-const shiftController = require('../../controllers/dropdownControllers/shiftController');
-const { verifyAdminToken } = require('../../middleware/verifyToken');
+const shiftController = require('../../../controllers/HRM/dropdownControllers/shiftController');
+const { verifyAdminToken } = require('../../../middleware/verifyToken');
 const router = express.Router();
 
 router.post('/', shiftController.createShift);

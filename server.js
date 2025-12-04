@@ -12,15 +12,15 @@ connectDB();
 
 // Import routes
 const userRoutes = require("./routes/userRoutes");
-const employeeRoutes = require("./routes/employeeRoutes");
-const adminRoutes = require("./routes/adminRoutes");
+// const employeeRoutes = require("./routes/employeeRoutes");
+// const adminRoutes = require("./routes/adminRoutes");
 const companyRoutes = require("./routes/companyRoute");
-const departmentRoutes = require("./routes/dropdownRoutes/departmentRoute");
-const designationRoutes = require("./routes/dropdownRoutes/designationRoute");
-const shiftRoutes = require("./routes/dropdownRoutes/shiftRoute");
-const ticketRoutes = require("./routes/ticketRoute");
-const holidayRoutes = require("./routes/holidayRoute");
-const leaveRoutes = require("./routes/leaveRoutes/leaveRoute");
+const departmentRoutes = require("./routes/HRMroutes/dropdownRoutes/departmentRoute");
+const designationRoutes = require("./routes/HRMroutes/dropdownRoutes/designationRoute");
+const shiftRoutes = require("./routes/HRMroutes/dropdownRoutes/shiftRoute");
+const ticketRoutes = require("./routes/HRMroutes/ticketRoute");
+const holidayRoutes = require("./routes/HRMroutes/holidayRoute");
+const leaveRoutes = require("./routes/HRMroutes/leaveRoutes/leaveRoute");
 const roleRoutes = require("./routes/roleRoute");
 
 const app = express();
@@ -71,8 +71,8 @@ app.get("/health", (req, res) => {
 
 // Routes
 app.use("/api/users", userRoutes);
-app.use("/api/employees", employeeRoutes);
-app.use("/api/admin", adminRoutes);
+// app.use("/api/employees", employeeRoutes);
+// app.use("/api/admin", adminRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api/companies", companyRoutes);

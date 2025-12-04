@@ -1,4 +1,4 @@
-const Shift = require('../../models/dropdownModels/shiftModel');
+const Shift = require('../../../models/HRMmodels/dropdownModels/shiftModel');
 
 // For Create Shift
 exports.createShift = async (req, res) => {

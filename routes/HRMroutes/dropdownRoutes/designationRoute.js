@@ -1,6 +1,6 @@
 const express = require('express');
-const { verifyAdminToken } = require('../../middleware/verifyToken');
-const designationController = require('../../controllers/dropdownControllers/designationController');
+const { verifyAdminToken } = require('../../../middleware/verifyToken');
+const designationController = require('../../../controllers/HRM/dropdownControllers/designationController');
 const router = express.Router();
 
 router.get('/', designationController.getAllDesignations);

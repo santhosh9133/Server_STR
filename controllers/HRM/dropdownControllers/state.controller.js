@@ -1,6 +1,6 @@
 // controllers/state.controller.js
 
-const State = require('../../models/dropdownModels/state.model');
+const State = require('../../../models/dropdownModels/state.model');
 
 // Get all states with optional search and pagination
 exports.getStates = async (req, res) => {

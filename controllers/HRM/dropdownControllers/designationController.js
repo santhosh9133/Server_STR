@@ -1,4 +1,4 @@
-const Designation = require('../../models/dropdownModels/designationModel.js');
+const Designation = require('../../../models/HRMmodels/dropdownModels/designationModel.js');
 
 // Get all designations (with pagination, search, isActive)
 exports.getAllDesignations = async (req, res) => {
