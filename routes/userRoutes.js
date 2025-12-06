@@ -1,59 +1,34 @@
 const express = require("express");
 const router = express.Router();
+const userController = require("../controllers/userController");
 const upload = require("../middleware/uploadMiddleware");
-const { auth } = require("../middleware/auth");
-const {
-  register,
-  login,
-  getAllUsers,
-  getProfile,
-  updateProfile,
-  changePassword,
-  logout,
-} = require("../controllers/authController");
 
-/**
- * @route   POST /api/auth/register
- * @desc    Register a new user (form-data)
- * @access  Public
- */
-router.post("/register", upload.single("profilePic"), register);
+// REGISTER with profile pic
+router.post(
+  "/",
+  upload.single("profilePic"), // form-data: profilePic file
+  userController.registerUser
+);
 
-/**
- * @route   POST /api/auth/login
- * @desc    Login user
- * @access  Public
- */
-router.post("/login", login);
+// LOGIN
+router.post("/login", userController.loginUser);
 
-/**
- * @route   GET /api/auth/profile
- * @desc    Get current user profile
- * @access  Private
- */
-router.get("/", getAllUsers);
+// CRUD
+router.get("/", userController.getAllUsers);
+router.get("/:id", userController.getUserById);
 
-router.get("/profile", auth, getProfile);
+// UPDATE (with file upload)
+router.put(
+  "/:id",
+  upload.single("profilePic"), // update profilePic
+  userController.updateUser
+);
 
-/**
- * @route   PUT /api/auth/profile
- * @desc    Update user profile (form-data)
- * @access  Private
- */
-router.put("/profile", auth, upload.single("profilePic"), updateProfile);
+// DELETE
+router.delete("/:id", userController.deleteUser);
 
-/**
- * @route   PUT /api/auth/change-password
- * @desc    Change user password
- * @access  Private
- */
-router.put("/change-password", auth, changePassword);
-
-/**
- * @route   POST /api/auth/logout
- * @desc    Logout user (client should remove token)
- * @access  Private
- */
-router.post("/logout", auth, logout);
+// EXTRA ENDPOINTS
+router.get("/active/list", userController.getActiveUsers);
+router.get("/department/:department", userController.getUsersByDepartment);
 
 module.exports = router;

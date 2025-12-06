@@ -193,7 +193,7 @@ userSchema.methods.generateAuthToken = function () {
     id: this._id,
     email: this.email,
     role: this.role,
-    userType: this.userType,
+    // userType: this.userType,
   };
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
 };

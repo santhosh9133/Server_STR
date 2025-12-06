@@ -22,10 +22,12 @@ const generateTokenResponse = (user, userEntity = null) => {
       mobile: user.mobile,
       profilePic: user.profilePic,
       role: user.role,
+      roleId: user.roleId, // Include full role object
       userType: user.userType,
       isActive: user.isActive,
       createdAt: user.createdAt,
       lastLogin: user.lastLogin,
+      permissions: user.roleId ? user.roleId.permissions : user.permissions, // Use role permissions if available
     },
   };
 
@@ -148,6 +150,10 @@ exports.login = async (req, res) => {
     }
 
     const { user, userEntity } = await authenticateUser(email.toLowerCase(), password);
+    
+    // Populate roleId to get permissions
+    await user.populate('roleId');
+    
     const response = generateTokenResponse(user, userEntity);
 
     res.status(200).json(response);
