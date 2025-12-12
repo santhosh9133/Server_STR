@@ -23,15 +23,52 @@ exports.registerCompany = async (req, res) => {
     if (existing)
       return res.status(400).json({ message: "Email already registered" });
 
-    // Parse permissions if sent as JSON string
+    // DEBUG LOG
+    console.log("Register Company Request Body:", JSON.stringify(req.body, null, 2));
+
+    // Helper to safely parse boolean
+    const isTrue = (val) => {
+      if (typeof val === 'boolean') return val;
+      if (typeof val === 'string') return val.toLowerCase() === 'true';
+      return false;
+    };
+
+    // Parse permissions
     let modulePermissions = { HRM: false, CRM: false, RECRUITMENT: false };
+    
+    // 1. Check if sent as a JSON string or Object under 'modulePermissions'
     if (req.body.modulePermissions) {
-      try {
-        modulePermissions = JSON.parse(req.body.modulePermissions);
-      } catch (e) {
-        // If parsing fails, use default permissions
+      if (typeof req.body.modulePermissions === 'string') {
+        try {
+          // Check if it's double stringified or just a regular JSON string
+          const parsed = JSON.parse(req.body.modulePermissions);
+          if (typeof parsed === 'string') {
+             // Handle double stringified case
+             const deepParsed = JSON.parse(parsed);
+             modulePermissions = { ...modulePermissions, ...deepParsed };
+          } else {
+             modulePermissions = { ...modulePermissions, ...parsed };
+          }
+        } catch (e) {
+          console.error("Error parsing modulePermissions string:", e);
+        }
+      } else if (typeof req.body.modulePermissions === 'object') {
+        modulePermissions = { ...modulePermissions, ...req.body.modulePermissions };
       }
     }
+
+    // 2. Check for flattened keys (Bracket notation & Dot notation)
+    // Bracket: modulePermissions[HRM]
+    if (req.body['modulePermissions[HRM]'] !== undefined) modulePermissions.HRM = isTrue(req.body['modulePermissions[HRM]']);
+    if (req.body['modulePermissions[CRM]'] !== undefined) modulePermissions.CRM = isTrue(req.body['modulePermissions[CRM]']);
+    if (req.body['modulePermissions[RECRUITMENT]'] !== undefined) modulePermissions.RECRUITMENT = isTrue(req.body['modulePermissions[RECRUITMENT]']);
+
+    // Dot: modulePermissions.HRM
+    if (req.body['modulePermissions.HRM'] !== undefined) modulePermissions.HRM = isTrue(req.body['modulePermissions.HRM']);
+    if (req.body['modulePermissions.CRM'] !== undefined) modulePermissions.CRM = isTrue(req.body['modulePermissions.CRM']);
+    if (req.body['modulePermissions.RECRUITMENT'] !== undefined) modulePermissions.RECRUITMENT = isTrue(req.body['modulePermissions.RECRUITMENT']);
+
+    console.log("Final modulePermissions:", modulePermissions);
 
     // Prepare new company data
     const newCompany = new Company({
@@ -121,12 +158,59 @@ exports.updateCompany = async (req, res) => {
   try {
     const updateData = { ...req.body };
 
-    // Parse permissions if sent as JSON string
+    console.log("Update Company Request Body:", JSON.stringify(req.body, null, 2));
+
+    // Helper to safely parse boolean
+    const isTrue = (val) => {
+      if (typeof val === 'boolean') return val;
+      if (typeof val === 'string') return val.toLowerCase() === 'true';
+      return false;
+    };
+
+    // Handle permissions
+    // Priority 1: JSON String or Object
     if (req.body.modulePermissions) {
-      try {
-        updateData.modulePermissions = JSON.parse(req.body.modulePermissions);
-      } catch (e) {
-        // If parsing fails, keep the original value
+      if (typeof req.body.modulePermissions === 'string') {
+        try {
+          const parsed = JSON.parse(req.body.modulePermissions);
+          if (typeof parsed === 'string') {
+             updateData.modulePermissions = JSON.parse(parsed);
+          } else {
+             updateData.modulePermissions = parsed;
+          }
+        } catch (e) {
+          console.error("Error parsing modulePermissions:", e);
+        }
+      } else if (typeof req.body.modulePermissions === 'object') {
+        updateData.modulePermissions = req.body.modulePermissions;
+      }
+    } else {
+      // Priority 2: Flat keys (Bracket or Dot notation)
+      // We use dot notation for updateData to allow partial updates
+      
+      // Bracket: modulePermissions[HRM]
+      if (req.body['modulePermissions[HRM]'] !== undefined) {
+        updateData['modulePermissions.HRM'] = isTrue(req.body['modulePermissions[HRM]']);
+        delete updateData['modulePermissions[HRM]'];
+      }
+      if (req.body['modulePermissions[CRM]'] !== undefined) {
+        updateData['modulePermissions.CRM'] = isTrue(req.body['modulePermissions[CRM]']);
+        delete updateData['modulePermissions[CRM]'];
+      }
+      if (req.body['modulePermissions[RECRUITMENT]'] !== undefined) {
+        updateData['modulePermissions.RECRUITMENT'] = isTrue(req.body['modulePermissions[RECRUITMENT]']);
+        delete updateData['modulePermissions[RECRUITMENT]'];
+      }
+
+      // Dot: modulePermissions.HRM (Ensure boolean conversion)
+      if (req.body['modulePermissions.HRM'] !== undefined) {
+        updateData['modulePermissions.HRM'] = isTrue(req.body['modulePermissions.HRM']);
+      }
+      if (req.body['modulePermissions.CRM'] !== undefined) {
+        updateData['modulePermissions.CRM'] = isTrue(req.body['modulePermissions.CRM']);
+      }
+      if (req.body['modulePermissions.RECRUITMENT'] !== undefined) {
+        updateData['modulePermissions.RECRUITMENT'] = isTrue(req.body['modulePermissions.RECRUITMENT']);
       }
     }
 
@@ -183,8 +267,8 @@ exports.deleteCompany = async (req, res) => {
 exports.getCompanyStats = async (req, res) => {
   try {
     const total = await Company.countDocuments();
-    const active = await Company.countDocuments({ isActive: "true" });
-    const inactive = await Company.countDocuments({ isActive: "false" });
+    const active = await Company.countDocuments({ isActive: true });
+    const inactive = await Company.countDocuments({ isActive: false });
 
     return res.json({
       total,
