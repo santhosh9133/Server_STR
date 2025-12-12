@@ -12,6 +12,7 @@ exports.registerCompany = async (req, res) => {
       email,
       phone,
       address,
+      role,
       gstNumber,
       password,
       confirmPassword,
@@ -22,15 +23,27 @@ exports.registerCompany = async (req, res) => {
     if (existing)
       return res.status(400).json({ message: "Email already registered" });
 
+    // Parse permissions if sent as JSON string
+    let modulePermissions = { HRM: false, CRM: false, RECRUITMENT: false };
+    if (req.body.modulePermissions) {
+      try {
+        modulePermissions = JSON.parse(req.body.modulePermissions);
+      } catch (e) {
+        // If parsing fails, use default permissions
+      }
+    }
+
     // Prepare new company data
     const newCompany = new Company({
       companyName,
       email,
       phone,
       address,
+      role,
       gstNumber,
       password,
       confirmPassword,
+      modulePermissions,
       companyImg: req.file ? req.file.filename : undefined,
     });
 
@@ -106,18 +119,53 @@ exports.getCompanyById = async (req, res) => {
 // ✅ Update Company (form-data)
 exports.updateCompany = async (req, res) => {
   try {
-    const updates = { ...req.body };
-    if (req.file) updates.companyImg = req.file.filename;
+    const updateData = { ...req.body };
 
-    const company = await Company.findByIdAndUpdate(req.params.id, updates, {
+    // Parse permissions if sent as JSON string
+    if (req.body.modulePermissions) {
+      try {
+        updateData.modulePermissions = JSON.parse(req.body.modulePermissions);
+      } catch (e) {
+        // If parsing fails, keep the original value
+      }
+    }
+
+    // Password update only when provided
+    if (req.body.password && req.body.password.trim() !== "") {
+      // Manually check if passwords match
+      if (req.body.password !== req.body.confirmPassword) {
+        return res.status(400).json({ message: "Passwords do not match" });
+      }
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(req.body.password, 12);
+      updateData.password = hashedPassword;
+      // Remove confirmPassword from update data
+      delete updateData.confirmPassword;
+    } else {
+      // Remove password fields so validation doesn't trigger
+      delete updateData.password;
+      delete updateData.confirmPassword;
+    }
+
+    if (req.file) {
+      updateData.companyImg = req.file.filename;
+    }
+
+    const company = await Company.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
-      runValidators: true,
+      runValidators: false, // Disable validators to avoid confirmPassword validation issue
     });
 
-    if (!company) return res.status(404).json({ message: "Company not found" });
-    res.status(200).json({ message: "Company updated", company });
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    res.json({ success: true, company });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 

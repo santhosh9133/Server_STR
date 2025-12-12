@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const permissionSchema = new mongoose.Schema(
   {
+    CompanyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
     module: {
       type: String,
       required: true,

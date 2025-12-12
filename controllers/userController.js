@@ -58,16 +58,31 @@ exports.registerUser = async (req, res) => {
 };
 
 //
-// LOGIN
+// LOGIN - Unified for both Users and Companies
 //
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findByCredentials(email, password);
-    const token = user.generateAuthToken();
+    // First, try to find and authenticate as a User
+    try {
+      const user = await User.findByCredentials(email, password);
+      const token = user.generateAuthToken();
+      return res.json({ success: true, token, user });
+    } catch (userError) {
+      // If user not found or password incorrect, try Company
+    }
 
-    res.json({ success: true, token, user });
+    // If not a user, try to find and authenticate as a Company
+    const Company = require("../models/companyModel");
+    try {
+      const company = await Company.findByCredentials(email, password);
+      const token = company.generateAuthToken();
+      return res.json({ success: true, token, user: company });
+    } catch (companyError) {
+      // If neither user nor company found
+      throw new Error("Invalid login credentials");
+    }
   } catch (error) {
     res.status(401).json({ success: false, message: error.message });
   }

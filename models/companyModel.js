@@ -2,6 +2,7 @@
 
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const companySchema = new mongoose.Schema(
   {
@@ -50,6 +51,10 @@ const companySchema = new mongoose.Schema(
         "Invalid GST number format",
       ],
     },
+    role: {
+      type: String,
+      default: "Company",
+    },
 
     companyImg: {
       type: String, // Stores the filename or full image URL
@@ -73,10 +78,15 @@ const companySchema = new mongoose.Schema(
         message: "Passwords do not match",
       },
     },
-     isActive: {
-    type: Boolean,
-    default: true
-   }
+    modulePermissions: {
+      HRM: { type: Boolean, default: false },
+      CRM: { type: Boolean, default: false },
+      RECRUITMENT: { type: Boolean, default: false },
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );
@@ -89,6 +99,34 @@ companySchema.pre("save", async function (next) {
   this.confirmPassword = undefined;
   next();
 });
+
+//
+// Static Method – Find By Credentials
+//
+companySchema.statics.findByCredentials = async function (email, password) {
+  const company = await this.findOne({ email }).select("+password");
+  if (!company) throw new Error("Invalid login credentials");
+
+  const isMatch = await bcrypt.compare(password, company.password);
+  if (!isMatch) throw new Error("Invalid login credentials");
+
+  return company;
+};
+
+//
+// Instance Method – Generate JWT Token
+//
+companySchema.methods.generateAuthToken = function () {
+  const payload = {
+    id: this._id,
+    email: this.email,
+    role: this.role,
+    companyName: this.companyName,
+  };
+  return jwt.sign(payload, process.env.JWT_SECRET || "secretkey", {
+    expiresIn: "7d",
+  });
+};
 
 // Indexes
 companySchema.index({ email: 1 });

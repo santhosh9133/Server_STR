@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const ticketSchema = new mongoose.Schema(
   {
+    CompanyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
     title: {
       type: String,
       required: [true, "Ticket title is required"],

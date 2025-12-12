@@ -1,5 +1,5 @@
 const Department = require('../../../models/HRMmodels/dropdownModels/departmentModel');
-// const Employee = require('../../models/employeeModels/employeeModel');
+const Employee = require('../../../models/userModel');
 
 exports.getDepartments = async (req, res) => {
   try {
