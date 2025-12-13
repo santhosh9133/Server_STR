@@ -22,6 +22,8 @@ const ticketRoutes = require("./routes/HRMroutes/ticketRoute");
 const holidayRoutes = require("./routes/HRMroutes/holidayRoute");
 const leaveRoutes = require("./routes/HRMroutes/leaveRoutes/leaveRoute");
 const roleRoutes = require("./routes/roleRoute");
+const assetCategoryRoutes = require("./routes/HRMroutes/dropdownRoutes/assetCategory.routes");
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -81,6 +83,7 @@ app.use("/api/tickets", ticketRoutes);
 app.use("/api/holidays", holidayRoutes);
 app.use("/api/leaves", leaveRoutes);
 app.use("/api/roles", roleRoutes);
+app.use("/api/asset-categories", assetCategoryRoutes);
 
 // Root endpoint
 app.get("/", (req, res) => {
